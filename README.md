@@ -1,192 +1,93 @@
-# Whack-A-Mole Unit-Testing
+# Whack-A-Mole Debugging
 
-![Whack-A-Mole clip art](assets/whack-a-mole.jpeg)
+![Whack-A-Mole clip art](assets/mole-was-whacked.jpg)
 
-Each problem here has a **buggy implementation** that works for most cases, but
-**fails subtly on certain edge cases**.
+Thank you for helping with <https://github.com/UCLA-CS-35L/whack-a-mole>! Now,
+all the moles have been whacked, and I have correct implementations of all of
+my algorithms in `src/algo.py`.
+
+It's time to use my algorithms library! I'm trying to write a vending machine
+application. However, it's got some problems.
 
 Your goal:
 
-- Write test cases that reveal these bugs (moles).
-- Identify an edge case that makes the code fail.
+1. Investigating symptoms to reproduce the bug
+1. Locating the faulty code
+1. Determining the root cause of the bug
+1. Implementing and verifying a fix
 
 <!-- markdownlint-disable MD024 -->
 
 ## Setup
 
-Make sure to install `pytest` and confirm that the input examples pass. For example,
+As a reminder, see <https://github.com/UCLA-CS-35L/whack-a-mole> for setup.
+
+It may be helpful to do `pipenv shell` and run the commands from within this
+shell.
+
+## Using the Vending Machine
+
+The source code is found in `src/vending_machine.py`. Notice that it imports
+some functions from `algo`. To see instruction on how to run the application,
+use `python3 src/vending_machine.py --help`.
+
+The vending machine CSV file (the `file` argument) is provided in
+`machine.csv`. The contents of this file are reproduced below (space added):
 
 ```text
-pipenv install --dev
-pipenv run pytest
+row, column, name,      price
+1,   A,      Chips,     120
+1,   B,      Soda,      150
+1,   C,      Candy,     80
+2,   A,      Gum,       50
+2,   B,      Cookie,    100
+2,   C,      Chocolate, 200
 ```
 
----
+- `row` and `column` encode the cell where it is in the machine
+- `name` is the name of the item
+- `price` is the price of the item
 
-## 🔨 0. Addition
+An example invocation would be as follows:
 
-### Problem
-
-To familiarize yourself with this repository, we'll use a dummy example.
-Consider the function `add` that takes two integers `a` and `b` and is supposed
-to return the sum. If you look inside `src/algo.py`, you'll see a function
-named `add`. Clearly, it is incorrect because it returns `a + a` instead of
-`a + b`.
-
-Now, locate `tests/test_add.py`. Here, you can see the test we are running.
-Notice that when we set `b` equal to `a`, we actually do get the correct
-result. Of course, that doesn't mean my function is actually correct. It just
-means that I pass some test cases.
-
-Each problem will have a problem statement (like what you're reading right now)
-and an example. Each example will contain the existing test case inside the
-corresponding test file. It is guaranteed that the current implementation of
-each algorithm passes the provided example. However, it is your job to find a
-test case that causes the code to fail!
-
-Notice that you will need to think through the correct output of the test case
-yourself. You are not provided with a correct implementation; after all, in
-test-driven development, the point is that you write tests first, then your
-implementation to pass all the test cases.
-
-For each problem, add a test case to the existing file. To do so, create a new
-function like `test_add_different` (try to make your function name
-descriptive), and use an assertion. Again, your assertion should be logically
-correct based on the problem statement, but cause my code to fail because my
-code is incorrect.
-
-For this problem, a failing test case is provided below:
-
-```py
-def test_add_different():
-    a = 3
-    b = 4
-    assert add(a, b) == 7
+```sh
+$ python3 run src/vending_machine.py machine.csv price Chips
+Price of Chips is $120
 ```
 
-After adding this to `test_add.py`, run `pipenv run pytest`. You should see a
-failure!
+This is correct as the price of the chips in the table is $120.
 
-Good luck whacking the rest of the moles!
+## Debugging
 
-### Example
+As a reminder, your goal is to fix the bugs!
 
-```text
-Input: a = 3, b = 3
-Output: 6
-Explanation: a + b = 3 + 3 = 6.
-```
+| debugging step                              | how                                                              |
+| ------------------------------------------- | ---------------------------------------------------------------- |
+| Investigating symptoms to reproduce the bug | partially complete; see `tests/test_vending_machine.py`          |
+| Locating the faulty code                    | adding breakpoints and running tests in debug mode               |
+| Determining the root cause of the bug       | describing what is logically wrong in the code                   |
+| Implementing and verifying a fix            | edit the source code in `src/vending_machine.py` and rerun tests |
 
----
+Here's a step-by-step checklist to do this activity:
 
-## 🧮 1. Maximum Subarray Sum
+- [ ] make a fork of this repository
+- [x] find some buggy behavior: this has been done for you!
 
-### Problem
+  - `tests/test_vending_machine.py` is provided to check some potential problems
+  - make sure you can describe what each test does!
 
-Given an integer array `nums`, find the contiguous subarray with the largest
-sum. The subarray must be nonempty.
+- [ ] run all the tests
+- [ ] for each failing test, go to the corresponding function and add a breakpoint somewhere
+- [ ] rerun failing tests in debug mode
+- [ ] identify at what point are the variables' values are no longer correct
+- [ ] note down a potential fix at each point
+- [ ] determine the root cause
+- [ ] consider how `src/vending_machine.py` might be refactored to address multiple fixes at once
+- [ ] run all the tests
 
-### Example
+  - ensure your fixes didn't break any existing passing tests!
 
-```text
-Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
-Output: 6
-Explanation: The subarray [4,-1,2,1] has the largest sum = 6.
-```
+- [ ] push to your fork and ensure the GitHub CI passes (green check mark)
 
----
-
-## 💰 2. Coin Change (Fewest Coins)
-
-### Problem
-
-You are given coin denominations and a target amount. Return the **fewest number
-of coins** needed to make that amount. If it’s not possible, return `-1`.
-
-### Example
-
-```text
-Input: coins = [1, 2, 5], amount = 11
-Output: 3
-Explanation: 11 = 5 + 5 + 1
-```
-
----
-
-## ✏️ 3. Edit Distance
-
-### Problem
-
-Given two strings `word1` and `word2`, return the **minimum number of
-operations** required to convert `word1` into `word2`. You can perform the following operations:
-
-- insert a character
-- delete a character
-- replace an existing character with a new character
-
-### Example
-
-```text
-Input: word1 = "kitten", word2 = "sitting"
-Output: 3
-Explanation: kitten -> sitten (replace 'k'->'s')
-             sitten -> sittin (replace 'e'->'i')
-             sittin -> sitting (insert 'g')
-```
-
----
-
-## 🎯 4. Subset Sum
-
-### Problem
-
-Given a list of integers and a target number, determine if any subset of the
-numbers sums exactly to the target.
-
-### Example
-
-```text
-Input: nums = [3,34,4,12,5,2], target = 9
-Output: True
-Explanation: 4 + 5 = 9
-```
-
----
-
-## 🧭 5. Shortest Path in a Grid
-
-### Problem
-
-You are given a 2D grid of `0`s (open) and `1`s (blocked). Find the shortest
-path from the top-left corner `(0,0)` to the bottom-right `(n-1,m-1)`. You can
-move in 4 directions (up, down, left, right).
-
-Return the number of steps, or `-1` if unreachable.
-
-### Example
-
-```text
-Input:
-grid = [
-  [0,0,0],
-  [1,1,0],
-  [0,0,0]
-]
-Output: 4
-```
-
----
-
-## 🔢 6. 3-Sum
-
-### Problem
-
-Given an integer array `nums`, return a list containing all unique triplets
-`[a,b,c]` such that `a + b + c == 0`.
-
-### Example
-
-```text
-Input: nums = [-1, 0, 1, 2, -1, -4]
-Output: [[-1, -1, 2], [-1, 0, 1]]
-```
+  - you may need to enable GitHub CI in the "Actions" tab
+  - optionally, submit a pull request with a fix!
